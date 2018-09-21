@@ -47,8 +47,9 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 		http.StripPrefix(fiileEndpoint, http.FileServer(http.Dir(config.StoragePath))))
 
 	//app endpoints
-	router.Methods("POST").Path("/").Name("POST new meme").
+	router.Methods("POST").Path("/").Name("Create meme").
 		Handler(basicAuthMiddleware(config.Security)(adminHandler.PostMemeHandler()))
+	router.Methods("GET").Path("/play").Name("Play meme").Handler(adminHandler.PlayMemeHandler())
 
 	//app websocket endpoints
 	router.Handle("/client/{clientId}", ws.WebSocketClientHandler(ws.NewMemeDiffer(), ws.NewMemeLister(config.StoragePath)))

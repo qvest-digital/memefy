@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"memefy/server/pkg/config"
+	"memefy/server/pkg/server/ws"
+	"memefy/server/pkg/util"
 	"net/http"
 	"os"
 
@@ -82,6 +84,27 @@ func (h *AdminHandler) HealthCheckHandler() http.HandlerFunc {
 }
 
 // -----
+
+func (h *AdminHandler) PlayMemeHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		name := r.URL.Query().Get("name")
+		if name == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		memelist := ws.NewMemeLister(h.cfg.StoragePath)()
+		if !util.Contains(memelist, name) {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+
+		if err := ws.TriggerMeme(name); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+	}
+}
 
 func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
