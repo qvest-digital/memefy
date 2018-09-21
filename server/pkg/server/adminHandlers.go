@@ -3,14 +3,17 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"memefy/server/pkg/config"
 	"net/http"
+	"os"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 )
 
 type AdminHandler struct {
+	cfg *config.Config
 }
 
 type linksInfo struct {
@@ -82,6 +85,75 @@ func (h *AdminHandler) HealthCheckHandler() http.HandlerFunc {
 
 func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+		if r.Method != "POST" {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+
+		//parse a request body as multipart/form-data
+		err := r.ParseMultipartForm(32 << 20)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
+			return
+		}
+
+		name := r.FormValue("name")
+		if name == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Error("No name given")
+			return
+		}
+
+		path := h.cfg.StoragePath + "/" + name
+		err = os.MkdirAll(path, 0777)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = saveMultipartFile(r, "pic", path)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = saveMultipartFile(r, "sound", path)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
 	}
+}
+
+//returns the filename of the saved file or an error if it occurs
+func saveMultipartFile(r *http.Request, partname string, storagePath string) (string, error) {
+	//retrieve the file from form data
+	file, handler, err := r.FormFile(partname)
+	defer file.Close()
+	if err != nil {
+		return "", err
+	}
+
+	//this is path which we want to store the file
+	savepath := storagePath + "/" + handler.Filename
+	f, err := os.OpenFile(savepath, os.O_WRONLY|os.O_CREATE, 0666)
+	defer f.Close()
+	if err != nil {
+		return "", err
+	}
+
+	//save our file to our path
+	written, err := io.Copy(f, file)
+	if err != nil {
+		return "", err
+	}
+
+	log.Infof("File '%s' saved, '%d' bytes", savepath, written)
+	return savepath, nil
 }
