@@ -3,6 +3,7 @@ package ws
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -16,7 +17,7 @@ type MemeDiffer func(oldMemes, currentMemes []string) []string
 // MemeLister should return the current meme selection
 type MemeLister func() []string
 
-func NewMemeHandleFunc(memeDiffer MemeDiffer, memeLister MemeLister) http.HandlerFunc {
+func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -36,7 +37,7 @@ func NewMemeHandleFunc(memeDiffer MemeDiffer, memeLister MemeLister) http.Handle
 				log.Printf("Client %s sent unparseable message: %s", id, err.Error())
 			}
 
-			memeDiff := memeDiffer(clientMsg.currentMemes, memeLister())
+			memeDiff := memeDiffer(memeLister(), clientMsg.currentMemes)
 			c.WriteJSON(&NewMemes{memeDiff})
 			if err != nil {
 				log.Printf("Could not sent new meme listing to client %s: %s", id, err.Error())
@@ -47,4 +48,42 @@ func NewMemeHandleFunc(memeDiffer MemeDiffer, memeLister MemeLister) http.Handle
 
 func allOrigins(r *http.Request) bool {
 	return true
+}
+
+func NewMemeLister(basePath string) MemeLister {
+	return func() []string {
+		storageDir, err := os.Open(basePath)
+		defer storageDir.Close()
+		if err != nil {
+			log.Printf("Failed opening directory: %s", err)
+		}
+
+		memeList := []string{}
+		list, _ := storageDir.Readdir(0)
+		for _, f := range list {
+			if f.IsDir() {
+				memeList = append(memeList, f.Name())
+			}
+		}
+
+		return memeList
+	}
+}
+
+func NewMemeDiffer() MemeDiffer {
+	return func(a, b []string) []string {
+		m := make(map[string]bool)
+		diff := []string{}
+
+		for _, item := range b {
+			m[item] = true
+		}
+
+		for _, item := range a {
+			if _, ok := m[item]; !ok {
+				diff = append(diff, item)
+			}
+		}
+		return diff
+	}
 }
