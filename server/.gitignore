@@ -1,0 +1,36 @@
+# IDEs
+/.vscode
+/.settings
+/.classpath
+/.project
+/.cover
+.idea
+.DS_Store
+atlassian-ide-plugin.xml
+*.iml
+target
+coverage-reports
+npm-debug.log
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+/address-service
+debug
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Project-local glide cache, RE: https://github.com/Masterminds/glide/issues/736
+.glide/
+
+/vendor
+/report.*
+
+# Gometalinter checkstyle result
+checkstyle-result.xml
