@@ -36,7 +36,7 @@ func NewMemeHandleFunc(memeDiffer MemeDiffer, memeLister MemeLister) http.Handle
 				log.Printf("Client %s sent unparseable message: %s", id, err.Error())
 			}
 
-			memeDiff := memeDiffer(clientMsg.currentMemes, memeLister())
+			memeDiff := memeDiffer(clientMsg.CurrentMemes, memeLister())
 			c.WriteJSON(&NewMemes{memeDiff})
 			if err != nil {
 				log.Printf("Could not sent new meme listing to client %s: %s", id, err.Error())

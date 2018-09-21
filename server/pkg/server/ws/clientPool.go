@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"encoding/json"
 	"log"
 	"sync"
 
@@ -29,10 +30,14 @@ func GetClient(id string) *websocket.Conn {
 	return clientMap[id]
 }
 
-func TriggerMeme(file string) error {
+func TriggerMeme(name string) error {
 	mutex.RLock()
 	defer mutex.RUnlock()
-	msg, err := websocket.NewPreparedMessage(websocket.TextMessage, []byte(file))
+	jsonTrigger, err := json.Marshal(Trigger{Meme: name})
+	if err != nil {
+		return err
+	}
+	msg, err := websocket.NewPreparedMessage(websocket.TextMessage, jsonTrigger)
 	if err != nil {
 		return err
 	}
@@ -43,5 +48,3 @@ func TriggerMeme(file string) error {
 	}
 	return nil
 }
-
-
