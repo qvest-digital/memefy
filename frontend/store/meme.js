@@ -19,7 +19,7 @@ export const mutations = {
         }
 
         //new one..
-        state.meme.push(meme)
+        state.memes.push(meme)
     }
 }
 
@@ -48,7 +48,6 @@ const actions = {
     },
 
     saveMeme(ctx, meme) {
-        console.log("tests")
         ctx.commit("updateMeme", meme)
     }
 }

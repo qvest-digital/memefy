@@ -48,9 +48,10 @@
       <div class="row">
         <div class="col-xs-12 col-lg-6">
           <strong class="well-sm">Version</strong>
+          <span>MICA 2018</span>
         </div>
         <div class="col-xs-12 col-lg-6 text-right">
-          <strong class="well-sm">© Popel</strong>
+          <strong class="well-sm">© Dino Omanovic, Timo Pick, Sven Schumann</strong>
         </div>
       </div>
     </footer>

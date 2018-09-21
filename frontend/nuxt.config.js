@@ -16,7 +16,10 @@ module.exports = {
         ],
         link: [
             {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
-        ]
+        ],
+        bodyAttrs: {
+            class: 'skin-black sidebar-mini'
+        }
     },
 
     /*
@@ -39,6 +42,7 @@ module.exports = {
     */
     plugins: [
         '~/plugins/bootstrap',
+        '~/plugins/global_components',
     ],
 
     /*

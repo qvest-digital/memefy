@@ -2,6 +2,7 @@ package server
 
 import (
 	"memefy/server/pkg/config"
+	"memefy/server/pkg/server/ws"
 
 	"context"
 	"fmt"
@@ -15,6 +16,8 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
+
+const fiileEndpoint = "/files/"
 
 // RunServer starts the server
 func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config) {
@@ -40,15 +43,16 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	router.Methods("GET").Path("/health").Name("health").Handler(adminHandler.HealthCheckHandler())
 
 	// static file server
-	router.Methods("GET").PathPrefix("/files/").Name("static files").Handler(
-		http.StripPrefix("/files/", http.FileServer(http.Dir(config.StoragePath))))
+	router.Methods("GET").PathPrefix(fiileEndpoint).Name("static files").Handler(
+		http.StripPrefix(fiileEndpoint, http.FileServer(http.Dir(config.StoragePath))))
 
 	//app endpoints
-	router.Methods("POST").Path("/").Name("POST new meme").
+	router.Methods("POST").Path("/").Name("Create meme").
 		Handler(basicAuthMiddleware(config.Security)(adminHandler.PostMemeHandler()))
+	router.Methods("GET").Path("/play").Name("Play meme").Handler(adminHandler.PlayMemeHandler())
 
-	// app websocket endpoints
-	// router.Handle("/client/{id}", ws.NewMemeHandleFunc(someMemeDiffer, someMemeLister))
+	//app websocket endpoints
+	router.Handle("/client/{clientId}", ws.WebSocketClientHandler(ws.NewMemeDiffer(), ws.NewFsMemeLister(config.StoragePath)))
 
 	server := &http.Server{Addr: fmt.Sprintf(":%d", config.Server.Port), Handler: router}
 
