@@ -37,7 +37,7 @@ func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister) http.H
 				log.Printf("Client %s sent unparseable message: %s", id, err.Error())
 			}
 
-			memeDiff := memeDiffer(memeLister(), clientMsg.currentMemes)
+			memeDiff := memeDiffer(memeLister(), clientMsg.CurrentMemes)
 			c.WriteJSON(&NewMemes{memeDiff})
 			if err != nil {
 				log.Printf("Could not sent new meme listing to client %s: %s", id, err.Error())
