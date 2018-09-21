@@ -9,6 +9,11 @@ import (
 	"gopkg.in/birkirb/loggers.v1/log"
 )
 
+func SaveMetaData(r *http.Request, path string) (string, error) {
+	//TODO
+	return "", nil
+}
+
 //returns the filename of the saved file or an error if it occurs
 func SaveMultipartFile(r *http.Request, partname string, storagePath string) (string, error) {
 	//retrieve the file from form data
