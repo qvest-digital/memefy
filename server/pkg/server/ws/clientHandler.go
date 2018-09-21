@@ -2,6 +2,7 @@ package ws
 
 import (
 	"log"
+	"memefy/server/pkg/persistence"
 	"net/http"
 	"os"
 
@@ -17,7 +18,7 @@ type MemeDiffer func(oldMemes, currentMemes []string) []string
 // MemeLister should return the current meme selection
 type MemeLister func() []string
 
-func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister) http.HandlerFunc {
+func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister, storagePath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -38,7 +39,26 @@ func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister) http.H
 			}
 
 			memeDiff := memeDiffer(memeLister(), clientMsg.CurrentMemes)
-			c.WriteJSON(&NewMemes{memeDiff})
+			for i := range memeDiff {
+				log.Println("Sending meme to client " + memeDiff[i])
+				meme, err := persistence.GetMeme(memeDiff[i], storagePath)
+				if err != nil {
+					log.Printf("Could not send meme %s to client %s: %s", memeDiff[i], id, err.Error())
+				}
+				byteName := []byte(memeDiff[i])
+				nameLen := byte(len(byteName))
+
+				byteMsg := []byte{}
+				byteMsg = append(byteMsg, nameLen)
+				byteMsg = append(byteMsg, byteName...)
+				byteMsg = append(byteMsg, meme...)
+				log.Printf("Writing %d bytes to client %s", len(byteMsg), id)
+				err = c.WriteMessage(websocket.BinaryMessage, byteMsg)
+				if err != nil {
+					log.Printf("Could not send binary meme %s to client %s: %s", memeDiff[i], id, err.Error())
+				}
+			}
+
 			if err != nil {
 				log.Printf("Could not sent new meme listing to client %s: %s", id, err.Error())
 			}

@@ -1,4 +1,4 @@
-package ws
+package client
 
 type ClientRegistration struct {
 	CurrentMemes []string `json:"currentMemes"`

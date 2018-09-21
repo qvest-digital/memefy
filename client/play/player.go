@@ -6,7 +6,10 @@ import (
 	vlc "github.com/adrg/libvlc-go"
 )
 
-func PlayMeme(path string) error {
+const basePath = "files/"
+const vidName = "out.mp4"
+
+func PlayMeme(name string) error {
 	// Initialize libvlc. Additional command line arguments can be passed in
 	// to libvlc by specifying them in the Init function.
 	if err := vlc.Init("--quiet"); err != nil {
@@ -29,7 +32,7 @@ func PlayMeme(path string) error {
 	// Set player media from path:
 	// media, err := player.LoadMediaFromPath("localpath/test.mp4")
 	// Set player media from URL:
-	media, err := player.LoadMediaFromPath(path)
+	media, err := player.LoadMediaFromPath(basePath + name + "/" + vidName)
 	if err != nil {
 		return err
 	}
@@ -48,7 +51,7 @@ func PlayMeme(path string) error {
 	// Depends on the version of libvlc. From my tests, libvlc 3.X does not
 	// need this delay.
 	// TODO: Implement proper callbacks for getting the state of the media.
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 
 	// If the media played is a live stream the length will be 0
 	length, err := player.MediaLength()

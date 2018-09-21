@@ -2,15 +2,15 @@ package main
 
 import (
 	"log"
-	"memefy/client/play"
+	ws "memefy/client/websocket"
+
+	"github.com/denisbrodbeck/machineid"
 )
 
-type Player func(string) error
-
-var player Player = play.PlayMeme
-
 func main() {
-	if err := player("small.mp4"); err != nil {
+	mid, err := machineid.ID()
+	if err != nil {
 		log.Fatal(err)
 	}
+	ws.ListenAndWrite("localhost:8080", "/client/"+mid)
 }

@@ -3,8 +3,9 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"memefy/server/pkg/config"
+	"memefy/server/pkg/converter"
+	"memefy/server/pkg/persistence"
 	"memefy/server/pkg/server/ws"
 	"memefy/server/pkg/util"
 	"net/http"
@@ -170,21 +171,21 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 			return
 		}
 
-		_, err = saveMultipartFile(r, "pic", path)
+		_, err = persistence.SaveMultipartFile(r, "pic", path)
 		if err != nil {
 			log.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		_, err = saveMultipartFile(r, "sound", path)
+		_, err = persistence.SaveMultipartFile(r, "sound", path)
 		if err != nil {
 			log.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
-		_, err = saveMetaData(r, path)
+		_, err = persistence.SaveMetaData(r, path)
 		if err != nil {
 			log.Error(err)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -200,54 +201,6 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 
 		w.WriteHeader(http.StatusCreated)
 		w.Write(jsonContent)
+		converter.CreateMp4(h.cfg.StoragePath+name+"/", "pic", "sound")
 	}
-}
-
-//returns the filename of the saved file or an error if it occurs
-func saveMultipartFile(r *http.Request, partname string, storagePath string) (string, error) {
-	//retrieve the file from form data
-	file, handler, err := r.FormFile(partname)
-	defer file.Close()
-	if err != nil {
-		return "", err
-	}
-
-	//this is path which we want to store the file
-	//	savepath := storagePath + "/" + handler.Filename
-	savepath := storagePath + "/" + partname
-	f, err := os.OpenFile(savepath, os.O_WRONLY|os.O_CREATE, 0666)
-	defer f.Close()
-	if err != nil {
-		return "", err
-	}
-
-	//save our file to our path
-	written, err := io.Copy(f, file)
-	if err != nil {
-		return "", err
-	}
-
-	log.Infof("File '%s' saved as '%s', '%d' bytes", handler.Filename, savepath, written)
-	return savepath, nil
-}
-
-func saveMetaData(r *http.Request, storagePath string) (string, error) {
-	content := r.FormValue("meta")
-
-	//this is path which we want to store the file
-	savepath := storagePath + "/meta"
-	f, err := os.OpenFile(savepath, os.O_WRONLY|os.O_CREATE, 0666)
-	defer f.Close()
-	if err != nil {
-		return "", err
-	}
-
-	//save our meta to our path
-	written, err := f.WriteString(content)
-	if err != nil {
-		return "", err
-	}
-
-	log.Infof("Metadata saved as '%s', '%d' bytes", savepath, written)
-	return savepath, nil
 }

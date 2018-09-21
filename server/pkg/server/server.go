@@ -53,7 +53,7 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	router.Methods("GET").Path("/play").Name("Play meme").Handler(adminHandler.PlayMemeHandler())
 
 	//app websocket endpoints
-	router.Handle("/client/{clientId}", ws.WebSocketClientHandler(ws.NewMemeDiffer(), ws.NewFsMemeLister(config.StoragePath)))
+	router.Handle("/client/{clientId}", ws.WebSocketClientHandler(ws.NewMemeDiffer(), ws.NewFsMemeLister(config.StoragePath), config.StoragePath))
 
 	server := &http.Server{Addr: fmt.Sprintf(":%d", config.Server.Port), Handler: router}
 
