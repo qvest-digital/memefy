@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"os"
 
 	"memefy/server/pkg/config"
 	"memefy/server/pkg/server"
@@ -35,5 +36,11 @@ func init() {
 func main() {
 	log.Info(banner)
 	log.Infof("Config: %+v", cfg)
+
+	err := os.MkdirAll(cfg.StoragePath, 0777)
+	if err != nil {
+		log.Fatal("Storage '%s' not available", cfg.StoragePath, err)
+	}
+
 	server.RunServer(context.Background(), nil, cfg)
 }
