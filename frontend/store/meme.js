@@ -23,14 +23,14 @@ const actions = {
                 sound: 'http://...'
             })
 
-            setTimeout(() => {
+            setInterval(() => {
                 vuexContext.commit('addMeme', {
                     id: 'id2',
                     name: 'Testname2',
                     pic: 'https://media.giphy.com/media/xUPGcA1SkYqVLDtxiU/giphy.gif',
                     sound: 'http://...'
                 })
-            }, 5000)
+            }, 1000)
 
             resolve()
         });
