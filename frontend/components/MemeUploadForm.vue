@@ -9,15 +9,15 @@
                 <message-success v-if="uploadStatus === 'success'">MEME erfolgreich gespeichert</message-success>
                 <message-error v-if="uploadStatus === 'fail'">MEME konnte nicht gespeichert werden!</message-error>
 
-                <div class="form-group">
+                <div class="form-group" :class="{'has-error': $v.meme.name.$error}">
                     <label for="meme-name">Name</label>
                     <input class="form-control" id="meme-name" placeholder="MEME Name" v-model="meme.name">
                 </div>
-                <div class="form-group">
+                <div class="form-group" :class="{'has-error': $v.meme.pic.$error}">
                     <label for="meme-pic">MEME</label>
                     <input id="meme-pic" type="file" @change="setMemePicture">
                 </div>
-                <div class="form-group">
+                <div class="form-group" :class="{'has-error': $v.meme.sound.$error}">
                     <label for="meme-sound">Sound</label>
                     <input id="meme-sound" type="file" @change="setMemeSound">
                 </div>
@@ -32,6 +32,7 @@
 </template>
 
 <script>
+    import { required, minValue } from 'vuelidate/lib/validators'
     import { mapActions } from 'vuex'
 
     export default {
@@ -46,6 +47,19 @@
                 uploadStatus: null
             }
         },
+        validations: {
+            meme: {
+                name: {
+                    required,
+                },
+                pic: {
+                    required,
+                },
+                sound: {
+                    required,
+                },
+            }
+        },
         methods: {
             ...mapActions({
                 saveMeme: 'meme/saveMeme'
@@ -57,25 +71,29 @@
                 this.meme.sound = event.target.files[0]
             },
             upload() {
-                const formData = new FormData();
-                formData.append("name", this.meme.name);
-                formData.append("pic", this.meme.pic);
-                formData.append("sound", this.meme.sound);
+                this.$v.meme.$touch();
 
-                this.$axios.post("/meme/", formData)
-                    .then((result) => {
-                        this.uploadStatus = 'success'
+                if(!this.$v.meme.$error) {
+                    const formData = new FormData();
+                    formData.append("name", this.meme.name);
+                    formData.append("pic", this.meme.pic);
+                    formData.append("sound", this.meme.sound);
 
-                        this.saveMeme({
-                            name: this.meme.name,
-                            pic: `/meme/${result.data.pic}`,
-                            sound: `/meme/${result.data.sound}`,
-                        })
-                    }, (error) => {
-                        this.uploadStatus = 'fail'
+                    this.$axios.post("/meme/", formData)
+                        .then((result) => {
+                            this.uploadStatus = 'success'
 
-                        console.log(error);
-                    });
+                            this.saveMeme({
+                                name: this.meme.name,
+                                pic: `/meme/${result.data.pic}`,
+                                sound: `/meme/${result.data.sound}`,
+                            })
+                        }, (error) => {
+                            this.uploadStatus = 'fail'
+
+                            console.log(error);
+                        });
+                }
             }
         }
     }
