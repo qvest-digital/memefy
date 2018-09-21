@@ -1,4 +1,3 @@
-
 export const state = () => ({
     memes: []
 })
@@ -9,42 +8,55 @@ export const mutations = {
     },
     updateMeme(state, meme) {
         //update a existing meme or add a new one
-        for(let curMeme of state.memes) {
-            if(curMeme.name === meme.name) {
+        for (let curMeme of state.memes) {
+            if (curMeme.name === meme.name) {
                 curMeme.name = meme.name
                 curMeme.pic = meme.pic
                 curMeme.sound = meme.sound
-                return;
+                curMeme.meta = meme.meta
+                return
             }
         }
 
         //new one..
         state.memes.push(meme)
+    },
+    setMemeMeta(state, {name, meta}) {
+        //update a existing meme or add a new one
+        for (let curMeme of state.memes) {
+            if (curMeme.name === name) {
+                curMeme.meta = meta
+                return
+            }
+        }
     }
 }
 
 const actions = {
     init(ctx) {
-        return new Promise((resolve, reject) => {
-            //TODO: ask for memes
-            ctx.commit('addMeme', {
-                id: 'id1',
-                name: 'Testname',
-                pic: 'https://media.giphy.com/media/gSIz6gGLhguOY/giphy.gif',
-                sound: 'http://...'
+        return this.$axios.get('/meme/')
+            .then((result) => result.data)
+            .catch((err) => console.log(err))
+            .then((memes) => {
+                for (let curMeme of memes) {
+                    ctx.commit('addMeme', {
+                        name: curMeme.name,
+                        pic: `/meme/${curMeme.pic}`,
+                        sound: `/meme/${curMeme.sound}`,
+                    })
+
+                    //ask for meta
+                    this.$axios.get(`/meme/${curMeme.meta}`)
+                        .then((result) => result.data)
+                        .catch((err) => console.log(err))
+                        .then(metaContent => {
+                            ctx.commit('setMemeMeta', {
+                                name: curMeme.name,
+                                meta: metaContent
+                            })
+                        })
+                }
             })
-
-            setTimeout(() => {
-                ctx.commit('addMeme', {
-                    id: 'id2',
-                    name: 'Testname2',
-                    pic: 'https://media.giphy.com/media/xUPGcA1SkYqVLDtxiU/giphy.gif',
-                    sound: 'http://...'
-                })
-            }, 1000)
-
-            resolve()
-        });
     },
 
     saveMeme(ctx, meme) {

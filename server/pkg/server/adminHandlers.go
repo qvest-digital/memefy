@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"memefy/server/pkg/config"
-	"memefy/server/pkg/persistence"
 	"memefy/server/pkg/converter"
+	"memefy/server/pkg/persistence"
 	"memefy/server/pkg/server/ws"
 	"memefy/server/pkg/util"
 	"net/http"
@@ -26,6 +26,13 @@ type linksInfo struct {
 type link struct {
 	Href   string   `json:"href"`
 	Method []string `json:"method"`
+}
+
+type meme struct {
+	Name    string `json:"name"`
+	Picture string `json:"pic"`
+	Sound   string `json:"sound"`
+	Meta    string `json:"meta"`
 }
 
 //IndexHandler returns a service self description
@@ -107,6 +114,33 @@ func (h *AdminHandler) PlayMemeHandler() http.HandlerFunc {
 	}
 }
 
+// -----
+
+func (h *AdminHandler) GetMemeHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		memelist := ws.NewFsMemeLister(h.cfg.StoragePath)()
+		result := make([]*meme, len(memelist))
+
+		for i, memeName := range memelist {
+			result[i] = &meme{
+				Name:    memeName,
+				Picture: fileEndpoint + memeName + "/pic",
+				Sound:   fileEndpoint + memeName + "/sound",
+				Meta:    fileEndpoint + memeName + "/meta",
+			}
+		}
+
+		rawResult, err := json.Marshal(result)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(rawResult)
+	}
+}
+
 func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
@@ -151,10 +185,18 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 			return
 		}
 
-		jsonContent, _ := json.Marshal(map[string]interface{}{
-			"name":  name,
-			"pic":   fiileEndpoint + name + "/pic",
-			"sound": fiileEndpoint + name + "/sound",
+		_, err = persistence.SaveMetaData(r, path)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		jsonContent, _ := json.Marshal(&meme{
+			Name:    name,
+			Picture: fileEndpoint + name + "/pic",
+			Sound:   fileEndpoint + name + "/sound",
+			Meta:    fileEndpoint + name + "/meta",
 		})
 
 		w.WriteHeader(http.StatusCreated)

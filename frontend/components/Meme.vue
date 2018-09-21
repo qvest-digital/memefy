@@ -17,8 +17,11 @@
         },
         methods: {
             triggerMeme() {
-                //TODO: trigger meme :D
-                alert(`Trigger ${JSON.stringify(this.meme)}`)
+                this.$axios.get(`/meme/play?name=${this.meme.name}`).then((result) => {
+                    console.log("success")
+                }, (err) => {
+                    console.log("errr", err)
+                })
             }
         }
     }
