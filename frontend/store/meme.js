@@ -19,7 +19,7 @@ export const mutations = {
         }
 
         //new one..
-        state.meme.push(meme)
+        state.memes.push(meme)
     }
 }
 
