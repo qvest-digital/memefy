@@ -93,7 +93,7 @@ func (h *AdminHandler) PlayMemeHandler() http.HandlerFunc {
 			return
 		}
 
-		memelist := ws.NewMemeLister(h.cfg.StoragePath)()
+		memelist := ws.NewFsMemeLister(h.cfg.StoragePath)()
 		if !util.Contains(memelist, name) {
 			w.WriteHeader(http.StatusNotFound)
 			return

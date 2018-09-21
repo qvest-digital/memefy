@@ -50,7 +50,7 @@ func allOrigins(r *http.Request) bool {
 	return true
 }
 
-func NewMemeLister(basePath string) MemeLister {
+func NewFsMemeLister(basePath string) MemeLister {
 	return func() []string {
 		storageDir, err := os.Open(basePath)
 		defer storageDir.Close()
