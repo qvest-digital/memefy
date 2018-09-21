@@ -17,6 +17,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const fiileEndpoint = "/files/"
+
 // RunServer starts the server
 func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config) {
 	stop := make(chan os.Signal, 1)
@@ -41,8 +43,8 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	router.Methods("GET").Path("/health").Name("health").Handler(adminHandler.HealthCheckHandler())
 
 	// static file server
-	router.Methods("GET").PathPrefix("/files/").Name("static files").Handler(
-		http.StripPrefix("/files/", http.FileServer(http.Dir(config.StoragePath))))
+	router.Methods("GET").PathPrefix(fiileEndpoint).Name("static files").Handler(
+		http.StripPrefix(fiileEndpoint, http.FileServer(http.Dir(config.StoragePath))))
 
 	//app endpoints
 	router.Methods("POST").Path("/").Name("POST new meme").

@@ -127,7 +127,14 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 			return
 		}
 
+		jsonContent, _ := json.Marshal(map[string]interface{}{
+			"name":  name,
+			"pic":   fiileEndpoint + name + "/pic",
+			"sound": fiileEndpoint + name + "/sound",
+		})
+
 		w.WriteHeader(http.StatusCreated)
+		w.Write(jsonContent)
 	}
 }
 
