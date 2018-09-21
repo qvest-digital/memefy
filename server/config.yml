@@ -1,0 +1,8 @@
+server:
+    port: 8080
+log:
+    level: "info"
+security:
+    enableBasicAuth: false
+    basicAuthUser: "admin"
+    basicAuthPass: "admin"
