@@ -2,7 +2,9 @@
   <div class="wrapper">
     <header class="main-header">
       <a href="" class="logo">
-        <span class="logo-mini">MEMEfy</span>
+        <span class="logo-mini">
+          <img src="/meme-icon.jpg" alt="memefy" style="width:100%" />
+        </span>
         <span class="logo-lg">MEMEfy</span>
       </a>
       <nav class="navbar navbar-static-top">
