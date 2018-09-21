@@ -6,25 +6,36 @@ export const state = () => ({
 export const mutations = {
     addMeme(state, meme) {
         state.memes.push(meme)
+    },
+    updateMeme(state, meme) {
+        //update a existing meme or add a new one
+        for(let curMeme of state.memes) {
+            if(curMeme.name === meme.name) {
+                curMeme.name = meme.name
+                curMeme.pic = meme.pic
+                curMeme.sound = meme.sound
+                return;
+            }
+        }
+
+        //new one..
+        state.meme.push(meme)
     }
 }
 
 const actions = {
-    init(vuexContext) {
+    init(ctx) {
         return new Promise((resolve, reject) => {
             //TODO: ask for memes
-
-            console.log("HAllo ?")
-
-            vuexContext.commit('addMeme', {
+            ctx.commit('addMeme', {
                 id: 'id1',
                 name: 'Testname',
                 pic: 'https://media.giphy.com/media/gSIz6gGLhguOY/giphy.gif',
                 sound: 'http://...'
             })
 
-            setInterval(() => {
-                vuexContext.commit('addMeme', {
+            setTimeout(() => {
+                ctx.commit('addMeme', {
                     id: 'id2',
                     name: 'Testname2',
                     pic: 'https://media.giphy.com/media/xUPGcA1SkYqVLDtxiU/giphy.gif',
@@ -35,6 +46,11 @@ const actions = {
             resolve()
         });
     },
+
+    saveMeme(ctx, meme) {
+        console.log("tests")
+        ctx.commit("updateMeme", meme)
+    }
 }
 
 export default {
