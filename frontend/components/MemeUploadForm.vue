@@ -58,7 +58,7 @@
                 formData.append("pic", this.meme.pic);
                 formData.append("sound", this.meme.sound);
 
-                this.$axios.post("/", formData)
+                this.$axios.post("/meme/", formData)
                     .then((result) => {
                         // this.saveMeme(result.data)
 
