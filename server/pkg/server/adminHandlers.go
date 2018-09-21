@@ -150,10 +150,18 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 			return
 		}
 
+		_, err = saveMetaData(r, path)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		jsonContent, _ := json.Marshal(map[string]interface{}{
 			"name":  name,
 			"pic":   fiileEndpoint + name + "/pic",
 			"sound": fiileEndpoint + name + "/sound",
+			"meta":  fiileEndpoint + name + "/meta",
 		})
 
 		w.WriteHeader(http.StatusCreated)
@@ -186,5 +194,26 @@ func saveMultipartFile(r *http.Request, partname string, storagePath string) (st
 	}
 
 	log.Infof("File '%s' saved as '%s', '%d' bytes", handler.Filename, savepath, written)
+	return savepath, nil
+}
+
+func saveMetaData(r *http.Request, storagePath string) (string, error) {
+	content := r.FormValue("meta")
+
+	//this is path which we want to store the file
+	savepath := storagePath + "/meta"
+	f, err := os.OpenFile(savepath, os.O_WRONLY|os.O_CREATE, 0666)
+	defer f.Close()
+	if err != nil {
+		return "", err
+	}
+
+	//save our meta to our path
+	written, err := f.WriteString(content)
+	if err != nil {
+		return "", err
+	}
+
+	log.Infof("Metadata saved as '%s', '%d' bytes", savepath, written)
 	return savepath, nil
 }

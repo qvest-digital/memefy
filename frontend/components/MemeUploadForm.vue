@@ -42,7 +42,8 @@
                 meme: {
                     pic: null,
                     sound: null,
-                    name: ''
+                    name: '',
+                    meta: {}
                 },
                 uploadStatus: null
             }
@@ -78,6 +79,7 @@
                     formData.append("name", this.meme.name);
                     formData.append("pic", this.meme.pic);
                     formData.append("sound", this.meme.sound);
+                    formData.append("meta", JSON.stringify(this.meme.meta));
 
                     this.$axios.post("/meme/", formData)
                         .then((result) => {
@@ -87,6 +89,7 @@
                                 name: this.meme.name,
                                 pic: `/meme/${result.data.pic}`,
                                 sound: `/meme/${result.data.sound}`,
+                                meta: this.meme.meta,
                             })
                         }, (error) => {
                             this.uploadStatus = 'fail'
