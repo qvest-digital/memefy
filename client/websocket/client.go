@@ -1,6 +1,8 @@
 package client
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"memefy/client/persistence"
 	"memefy/client/play"
@@ -12,11 +14,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func ListenAndWrite(addr string) {
+func ListenAndWrite(addr, path string) {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	c := newConn(addr)
+	c := newConn(addr, path)
 	defer c.Close()
 
 	done := make(chan struct{})
@@ -45,10 +47,9 @@ func ListenAndWrite(addr string) {
 	}
 }
 
-func newConn(addr string) *websocket.Conn {
-	u := url.URL{Scheme: "ws", Host: addr, Path: "/echo"}
+func newConn(addr, path string) *websocket.Conn {
+	u := url.URL{Scheme: "ws", Host: addr, Path: path}
 	log.Printf("connecting to %s", u.String())
-
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
@@ -59,23 +60,45 @@ func newConn(addr string) *websocket.Conn {
 func Listen(c *websocket.Conn) error {
 	for {
 
-		trigger := &Trigger{}
-		err := c.ReadJSON(trigger)
+		msgType, msgReader, err := c.NextReader()
 		if err != nil {
-			log.Println("read error: ", err)
+			log.Println("recv error: ", err)
 			return err
 		}
-		play.PlayMeme(trigger.Meme)
+		if msgType == websocket.BinaryMessage {
+			nameLenByte := make([]byte, 1)
+			n, err := msgReader.Read(nameLenByte)
+			if err != nil {
+				log.Println("binary read error: ", err)
+				return err
+			}
+			if n != 1 {
+				log.Println("binary read error, read more then one length byte")
+				return fmt.Errorf("Instead of reading 1 length byte %d were read", n)
+			}
+			nameLen := int(nameLenByte[0])
+			nameBytes := make([]byte, nameLen)
+			n, err = msgReader.Read(nameBytes)
+			if err != nil {
+				log.Println("binary read error while reading name: ", err)
+				return err
+			}
+			if n != nameLen {
+				log.Println("binary read error, read more then one length byte")
+				return fmt.Errorf("Instead of reading %d length byte %d were read", nameLen, n)
+			}
+			persistence.SaveMeme(string(nameBytes), msgReader)
+		} else {
+			trigger := &Trigger{}
+			err := json.NewDecoder(msgReader).Decode(trigger)
+			if err != nil {
+				log.Println("read error: ", err)
+				return err
+			}
+			log.Println("got ", trigger)
+			play.PlayMeme(trigger.Meme)
+		}
 	}
-}
-
-func Write(c *websocket.Conn, msg string) error {
-	err := c.WriteMessage(websocket.TextMessage, []byte(msg))
-	if err != nil {
-		log.Println("write:", err)
-		return err
-	}
-	return nil
 }
 
 func disconnectGracefully(c *websocket.Conn, done chan struct{}) {
