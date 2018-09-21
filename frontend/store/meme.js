@@ -1,8 +1,26 @@
-export const state = () => ({
+import cfg from '../static/config.js'
+
+const buildMemeDataKey = (memeName, key) => {
+    return `${memeName}.${key}`
+}
+
+const getDataFromLS = (memeName, key, defaultValue = null) => {
+    if (!localStorage[buildMemeDataKey(memeName, key)]) {
+        return defaultValue
+    }
+
+    return localStorage[buildMemeDataKey(memeName, key)]
+}
+
+const saveDataIntoLS = (memeName, key, data) => {
+    localStorage.setItem(buildMemeDataKey(memeName, key), data)
+}
+
+const state = () => ({
     memes: []
 })
 
-export const mutations = {
+const mutations = {
     addMeme(state, meme) {
         state.memes.push(meme)
     },
@@ -19,7 +37,11 @@ export const mutations = {
         }
 
         //new one..
-        state.memes.push(meme)
+        state.memes.push({
+            ...meme,
+            hasCoolDown: false,
+            cooldown: -1,
+        })
     },
     setMemeMeta(state, {name, meta}) {
         //update a existing meme or add a new one
@@ -29,6 +51,52 @@ export const mutations = {
                 return
             }
         }
+    },
+    setMemeCoolDown(state, name) {
+        for (let curMeme of state.memes) {
+            if (curMeme.name === name) {
+                curMeme.lastTrigger = new Date()
+                saveDataIntoLS(name, 'trigger', curMeme.lastTrigger.toISOString())
+
+                return
+            }
+        }
+        return null
+    },
+    setMemeCoolDownTime(state, {name, time}) {
+        for (let curMeme of state.memes) {
+            if (curMeme.name === name) {
+                curMeme.cooldown = time
+                return
+            }
+        }
+    }
+}
+
+const getters = {
+    getMemeByName: (state) => (name) => {
+        for (let curMeme of state.memes) {
+            if (curMeme.name === name) {
+                return curMeme
+            }
+        }
+        return null
+    },
+
+    getMemesInCooldown: (state, getters) => () => {
+        return state.memes.filter(m => getters.hasMemeCooldown(m.name))
+    },
+
+    getMemeCoolDown: (state, getters) => (name) => {
+        return new Date() - getters.getMemeByName(name).lastTrigger;
+    },
+
+    hasMemeCooldown: (state, getters) => (name) => {
+        return getters.getMemeCoolDown(name) <= cfg.meme.cooldown;
+    },
+
+    cooldownLeft: (state, getters) => (name) => {
+        return cfg.meme.cooldown - getters.getMemeByName(name).cooldown;
     }
 }
 
@@ -43,6 +111,14 @@ const actions = {
                         name: curMeme.name,
                         pic: `/meme/${curMeme.pic}`,
                         sound: `/meme/${curMeme.sound}`,
+                        lastTrigger: new Date(getDataFromLS(curMeme.name, 'trigger', "2000-01-01T00:00:00.000Z")),
+
+                        /*
+                        //god dammed: it is REALY fucking important(!) to define ALL needed properties
+                        //otherwise vue(x) has no chance to build the property-proxies and inform other components
+                        //for changes ... -.-
+                        */
+                        cooldown: -1,
                     })
 
                     //ask for meta
@@ -61,12 +137,24 @@ const actions = {
 
     saveMeme(ctx, meme) {
         ctx.commit("updateMeme", meme)
+    },
+
+    coolDownMeme(ctx, memeName) {
+        ctx.commit("setMemeCoolDown", memeName)
+    },
+
+    updateMemeCoolDownTime(ctx, memeName) {
+        ctx.commit("setMemeCoolDownTime", {
+            name: memeName,
+            time: ctx.getters.getMemeCoolDown(memeName)
+        })
     }
 }
 
 export default {
     namespaced: true,
     state,
+    getters,
     mutations,
     actions
 }

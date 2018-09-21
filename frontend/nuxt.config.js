@@ -44,6 +44,7 @@ module.exports = {
         '~/plugins/init',
         '~/plugins/bootstrap',
         '~/plugins/global_components',
+        '~/plugins/cooldown_watcher',
     ],
 
     /*
