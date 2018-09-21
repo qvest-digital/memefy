@@ -17,7 +17,6 @@ func PlayMeme(path string) error {
 	// Create a new player
 	player, err := vlc.NewPlayer()
 	if err != nil {
-		println("1")
 		return err
 	}
 
