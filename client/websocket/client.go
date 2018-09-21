@@ -1,8 +1,9 @@
 package client
 
 import (
-	"flag"
 	"log"
+	"memefy/client/persistence"
+	"memefy/client/play"
 	"net/url"
 	"os"
 	"os/signal"
@@ -12,13 +13,10 @@ import (
 )
 
 func ListenAndWrite(addr string) {
-	flag.Parse()
-	log.SetFlags(0)
-
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
-	c := NewConn(addr)
+	c := newConn(addr)
 	defer c.Close()
 
 	done := make(chan struct{})
@@ -30,17 +28,16 @@ func ListenAndWrite(addr string) {
 		}
 	}()
 
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
+	currentMemes, err := persistence.ListMemes()
+	if err != nil {
+		log.Fatalf("Could not list current memes: %s", err.Error())
+	}
+	c.WriteJSON(&ClientRegistration{CurrentMemes: currentMemes})
 
 	for {
 		select {
 		case <-done:
 			return
-		case t := <-ticker.C:
-			if err := Write(c, t.String()); err != nil {
-				return
-			}
 		case <-interrupt:
 			disconnectGracefully(c, done)
 			return
@@ -48,7 +45,7 @@ func ListenAndWrite(addr string) {
 	}
 }
 
-func NewConn(addr string) *websocket.Conn {
+func newConn(addr string) *websocket.Conn {
 	u := url.URL{Scheme: "ws", Host: addr, Path: "/echo"}
 	log.Printf("connecting to %s", u.String())
 
@@ -61,12 +58,14 @@ func NewConn(addr string) *websocket.Conn {
 
 func Listen(c *websocket.Conn) error {
 	for {
-		_, message, err := c.ReadMessage()
+
+		trigger := &Trigger{}
+		err := c.ReadJSON(trigger)
 		if err != nil {
-			log.Println("read:", err)
+			log.Println("read error: ", err)
 			return err
 		}
-		log.Printf("recv: %s", message)
+		play.PlayMeme(trigger.Meme)
 	}
 }
 
