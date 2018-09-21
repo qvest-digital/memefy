@@ -27,6 +27,13 @@ type link struct {
 	Method []string `json:"method"`
 }
 
+type meme struct {
+	Name    string `json:"name"`
+	Picture string `json:"pic"`
+	Sound   string `json:"sound"`
+	Meta    string `json:"meta"`
+}
+
 //IndexHandler returns a service self description
 func (h *AdminHandler) IndexHandler(router *mux.Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -106,6 +113,33 @@ func (h *AdminHandler) PlayMemeHandler() http.HandlerFunc {
 	}
 }
 
+// -----
+
+func (h *AdminHandler) GetMemeHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		memelist := ws.NewFsMemeLister(h.cfg.StoragePath)()
+		result := make([]*meme, len(memelist))
+
+		for i, memeName := range memelist {
+			result[i] = &meme{
+				Name:    memeName,
+				Picture: fileEndpoint + memeName + "/pic",
+				Sound:   fileEndpoint + memeName + "/sound",
+				Meta:    fileEndpoint + memeName + "/meta",
+			}
+		}
+
+		rawResult, err := json.Marshal(result)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(rawResult)
+	}
+}
+
 func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
@@ -157,11 +191,11 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 			return
 		}
 
-		jsonContent, _ := json.Marshal(map[string]interface{}{
-			"name":  name,
-			"pic":   fiileEndpoint + name + "/pic",
-			"sound": fiileEndpoint + name + "/sound",
-			"meta":  fiileEndpoint + name + "/meta",
+		jsonContent, _ := json.Marshal(&meme{
+			Name:    name,
+			Picture: fileEndpoint + name + "/pic",
+			Sound:   fileEndpoint + name + "/sound",
+			Meta:    fileEndpoint + name + "/meta",
 		})
 
 		w.WriteHeader(http.StatusCreated)

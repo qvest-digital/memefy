@@ -17,7 +17,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const fiileEndpoint = "/files/"
+const fileEndpoint = "/files/"
 
 // RunServer starts the server
 func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config) {
@@ -38,15 +38,16 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	}
 
 	//info endpoints
-	router.Methods("GET").Path("/").Name("self").Handler(adminHandler.IndexHandler(router))
+	router.Methods("GET").Path("/self").Name("self").Handler(adminHandler.IndexHandler(router))
 	router.Methods("GET").Path("/info").Name("info").Handler(adminHandler.AdminInfoHandler())
 	router.Methods("GET").Path("/health").Name("health").Handler(adminHandler.HealthCheckHandler())
 
 	// static file server
-	router.Methods("GET").PathPrefix(fiileEndpoint).Name("static files").Handler(
-		http.StripPrefix(fiileEndpoint, http.FileServer(http.Dir(config.StoragePath))))
+	router.Methods("GET").PathPrefix(fileEndpoint).Name("static files").Handler(
+		http.StripPrefix(fileEndpoint, http.FileServer(http.Dir(config.StoragePath))))
 
 	//app endpoints
+	router.Methods("GET").Path("/").Name("Get a meme list").Handler(adminHandler.GetMemeHandler())
 	router.Methods("POST").Path("/").Name("Create meme").
 		Handler(basicAuthMiddleware(config.Security)(adminHandler.PostMemeHandler()))
 	router.Methods("GET").Path("/play").Name("Play meme").Handler(adminHandler.PlayMemeHandler())

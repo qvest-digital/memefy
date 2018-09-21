@@ -41,6 +41,7 @@ module.exports = {
     ** Plugins to load before mounting the App
     */
     plugins: [
+        '~/plugins/init',
         '~/plugins/bootstrap',
         '~/plugins/global_components',
     ],
