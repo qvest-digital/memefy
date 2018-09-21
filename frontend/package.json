@@ -1,0 +1,23 @@
+{
+  "name": "memefy",
+  "version": "1.0.0",
+  "description": "MICA 2018",
+  "author": "sschum",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^1.0.0",
+    "bootstrap": "^3.3.7",
+    "@nuxtjs/axios": "^5.0.0",
+    "admin-lte": "^2.4.2",
+    "jquery": "^3.3.1"
+  },
+  "devDependencies": {
+    "cross-env": "^5.0.1"
+  }
+}
