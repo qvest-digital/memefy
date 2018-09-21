@@ -17,8 +17,8 @@ npm-debug.log
 *.dll
 *.so
 *.dylib
-/address-service
 debug
+/files
 
 # Test binary, build with `go test -c`
 *.test
