@@ -90,15 +90,40 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 			return
 		}
 
-		_, err := saveMultipartFile(r, "pic", h.cfg.StoragePath)
+		//parse a request body as multipart/form-data
+		err := r.ParseMultipartForm(32 << 20)
 		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
 			log.Error(err)
 			return
 		}
 
-		_, err = saveMultipartFile(r, "sound", h.cfg.StoragePath)
+		name := r.FormValue("name")
+		if name == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			log.Error("No name given")
+			return
+		}
+
+		path := h.cfg.StoragePath + "/" + name
+		err = os.MkdirAll(path, 0777)
 		if err != nil {
 			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = saveMultipartFile(r, "pic", path)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		_, err = saveMultipartFile(r, "sound", path)
+		if err != nil {
+			log.Error(err)
+			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
@@ -108,12 +133,6 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 
 //returns the filename of the saved file or an error if it occurs
 func saveMultipartFile(r *http.Request, partname string, storagePath string) (string, error) {
-	//parse a request body as multipart/form-data
-	err := r.ParseMultipartForm(32 << 20)
-	if err != nil {
-		return "", err
-	}
-
 	//retrieve the file from form data
 	file, handler, err := r.FormFile(partname)
 	defer file.Close()

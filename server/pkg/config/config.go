@@ -63,6 +63,10 @@ func Get() *Config {
 			config.Log.Level = "info"
 		}
 
+		if config.StoragePath == "" {
+			config.StoragePath = "/tmp/memefy"
+		}
+
 		if err != nil {
 			panic(err)
 		}

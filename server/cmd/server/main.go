@@ -39,7 +39,7 @@ func main() {
 
 	err := os.MkdirAll(cfg.StoragePath, 0777)
 	if err != nil {
-		log.Fatal("storage not available", err)
+		log.Fatal("Storage '%s' not available", cfg.StoragePath, err)
 	}
 
 	server.RunServer(context.Background(), nil, cfg)
