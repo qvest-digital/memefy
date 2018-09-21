@@ -24,13 +24,13 @@
         <ul class="sidebar-menu tree" data-widget="tree">
           <nuxt-link :to="{name: 'index' }" tag="li" active-class="active" exact>
             <a>
-              <i class="fa fa-dashboard"></i>
+              <i class="glyphicon glyphicon-film"></i>
               <span>MEME's</span>
             </a>
           </nuxt-link>
           <nuxt-link :to="{name: 'upload'}" tag="li" active-class="active">
             <a>
-              <i class="fa fa-briefcase"></i>
+              <i class="glyphicon glyphicon-open"></i>
               <span>Upload</span>
             </a>
           </nuxt-link>
