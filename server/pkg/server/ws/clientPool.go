@@ -2,6 +2,7 @@ package ws
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 
@@ -15,12 +16,14 @@ var mutex = sync.RWMutex{}
 func AddClient(id string, c *websocket.Conn) {
 	mutex.Lock()
 	defer mutex.Unlock()
+	log.Printf("Adding client %s", id)
 	clientMap[id] = c
 }
 
 func RemoveClient(id string) {
 	mutex.Lock()
 	defer mutex.Unlock()
+	log.Printf("Removing client %s", id)
 	delete(clientMap, id)
 }
 
@@ -31,6 +34,7 @@ func GetClient(id string) *websocket.Conn {
 }
 
 func TriggerMeme(name string) error {
+	fmt.Println("Sending trigger for " + name)
 	mutex.RLock()
 	defer mutex.RUnlock()
 	jsonTrigger, err := json.Marshal(Trigger{Meme: name})

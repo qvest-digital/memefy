@@ -64,7 +64,7 @@ func Get() *Config {
 		}
 
 		if config.StoragePath == "" {
-			config.StoragePath = "/tmp/memefy"
+			config.StoragePath = "files/"
 		}
 
 		if err != nil {

@@ -15,7 +15,7 @@ func CreateMp4(basePath, image, sound string) (string, error) {
 		"-i", basePath+sound,
 		"-shortest",
 		"-strict", " -2",
-		"out.mp4")
+		basePath+"out.mp4")
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 	return basePath + "out.mp4", cmd.Run()
