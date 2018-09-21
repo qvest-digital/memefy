@@ -6,3 +6,4 @@ security:
     enableBasicAuth: false
     basicAuthUser: "admin"
     basicAuthPass: "admin"
+storagePath: "/tmp/memefy"

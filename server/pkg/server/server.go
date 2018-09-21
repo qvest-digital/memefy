@@ -30,7 +30,9 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	)
 	router.Use(accessLoggingMiddleware)
 
-	adminHandler := &AdminHandler{}
+	adminHandler := &AdminHandler{
+		cfg: config,
+	}
 
 	//info endpoints
 	router.Methods("GET").Path("/").Name("self").Handler(adminHandler.IndexHandler(router))

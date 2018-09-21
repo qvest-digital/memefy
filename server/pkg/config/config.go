@@ -18,9 +18,10 @@ var config *Config
 var once sync.Once
 
 type Config struct {
-	Server   Server
-	Log      Log
-	Security Security
+	Server      Server
+	Log         Log
+	Security    Security
+	StoragePath string
 }
 
 type Server struct {
