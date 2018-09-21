@@ -9,6 +9,13 @@ import (
 
 const basePath = "files/"
 
+func init() {
+	err := os.MkdirAll(basePath, 0777)
+	if err != nil {
+		log.Fatal("Storage '%s' not available", basePath, err)
+	}
+}
+
 func ListMemes() (memes []string, err error) {
 	contents, err := ioutil.ReadDir(basePath)
 	if err != nil {
