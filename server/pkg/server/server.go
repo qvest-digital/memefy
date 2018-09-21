@@ -40,7 +40,7 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	router.Methods("GET").Path("/health").Name("health").Handler(adminHandler.HealthCheckHandler())
 
 	// static file server
-	router.Methods("GET").PathPrefix("/files").Name("static files").Handler(
+	router.Methods("GET").PathPrefix("/files/").Name("static files").Handler(
 		http.StripPrefix("/files/", http.FileServer(http.Dir(config.StoragePath))))
 
 	//app endpoints
