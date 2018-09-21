@@ -39,6 +39,7 @@ module.exports = {
     */
     plugins: [
         '~/plugins/bootstrap',
+        '~/plugins/global_components',
     ],
 
     /*

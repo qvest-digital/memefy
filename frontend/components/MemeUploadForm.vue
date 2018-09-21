@@ -6,6 +6,9 @@
 
         <form role="form" @submit.prevent="upload">
             <div class="box-body">
+                <message-success v-if="uploadStatus === 'success'">MEME erfolgreich gespeichert</message-success>
+                <message-success v-if="uploadStatus === 'fail'">MEME konnte nicht gespeichert werden!</message-success>
+
                 <div class="form-group">
                     <label for="meme-name">Name</label>
                     <input class="form-control" id="meme-name" placeholder="MEME Name" v-model="meme.name">
@@ -39,7 +42,8 @@
                     pic: null,
                     sound: null,
                     name: ''
-                }
+                },
+                uploadStatus: null
             }
         },
         methods: {
@@ -60,6 +64,7 @@
 
                 this.$axios.post("/meme/", formData)
                     .then((result) => {
+                        this.uploadStatus = 'success'
                         // this.saveMeme(result.data)
 
                         //TODO: remove testcode
@@ -68,6 +73,8 @@
                             pic: "https://media.giphy.com/media/wWue0rCDOphOE/giphy.gif",
                         });
                     }, function (error) {
+                        this.uploadStatus = 'fail'
+
                         console.log(error);
                     });
             }

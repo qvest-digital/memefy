@@ -48,7 +48,6 @@ const actions = {
     },
 
     saveMeme(ctx, meme) {
-        console.log("tests")
         ctx.commit("updateMeme", meme)
     }
 }
