@@ -54,6 +54,15 @@ module.exports = {
     */
     axios: {
         // See https://github.com/nuxt-community/axios-module#options
+        proxy: true,
+    },
+
+    proxy: {
+        '/meme': {
+            target: process.env.MEME_SERVER_URL || 'http://localhost:8080',
+            pathRewrite: {'^/meme/': ''},
+            logLevel: 'debug'
+        }
     },
 
     /*

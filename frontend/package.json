@@ -11,11 +11,12 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
-    "nuxt": "^1.0.0",
-    "bootstrap": "^3.3.7",
     "@nuxtjs/axios": "^5.0.0",
+    "@nuxtjs/proxy": "^1.2.4",
     "admin-lte": "^2.4.2",
-    "jquery": "^3.3.1"
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.3.1",
+    "nuxt": "^1.0.0"
   },
   "devDependencies": {
     "cross-env": "^5.0.1"

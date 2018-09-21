@@ -141,7 +141,8 @@ func saveMultipartFile(r *http.Request, partname string, storagePath string) (st
 	}
 
 	//this is path which we want to store the file
-	savepath := storagePath + "/" + handler.Filename
+	//	savepath := storagePath + "/" + handler.Filename
+	savepath := storagePath + "/" + partname
 	f, err := os.OpenFile(savepath, os.O_WRONLY|os.O_CREATE, 0666)
 	defer f.Close()
 	if err != nil {
@@ -154,6 +155,6 @@ func saveMultipartFile(r *http.Request, partname string, storagePath string) (st
 		return "", err
 	}
 
-	log.Infof("File '%s' saved, '%d' bytes", savepath, written)
+	log.Infof("File '%s' saved as '%s', '%d' bytes", handler.Filename, savepath, written)
 	return savepath, nil
 }
