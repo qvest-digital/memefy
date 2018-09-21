@@ -47,6 +47,9 @@ func RunServer(cancelCtx context.Context, ready chan bool, config *config.Config
 	router.Methods("POST").Path("/").Name("POST new meme").
 		Handler(basicAuthMiddleware(config.Security)(adminHandler.PostMemeHandler()))
 
+	//app websocket endpoints
+	// router.Handle("/client/{id}", ws.NewMemeHandleFunc(someMemeDiffer, someMemeLister))
+
 	server := &http.Server{Addr: fmt.Sprintf(":%d", config.Server.Port), Handler: router}
 
 	go func() {
