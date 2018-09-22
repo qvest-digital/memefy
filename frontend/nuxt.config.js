@@ -15,7 +15,7 @@ module.exports = {
             {hid: 'description', name: 'description', content: pkg.description}
         ],
         link: [
-            {rel: 'icon', type: 'image/x-icon', href: '/favicon.ico'}
+            {rel: 'icon', type: 'image/png', href: '/favicon.png'}
         ],
         bodyAttrs: {
             class: 'skin-black sidebar-mini'
@@ -44,6 +44,7 @@ module.exports = {
         '~/plugins/init',
         '~/plugins/bootstrap',
         '~/plugins/global_components',
+        '~/plugins/cooldown_watcher',
     ],
 
     /*

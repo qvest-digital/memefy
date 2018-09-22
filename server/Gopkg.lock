@@ -134,6 +134,17 @@
   version = "v0.3.0"
 
 [[projects]]
+  name = "gopkg.in/birkirb/loggers.v1"
+  packages = [
+    ".",
+    "log",
+    "mappers",
+    "mappers/stdlib"
+  ]
+  revision = "2ec57cf2e3a4b2ca1a497e98e3f95741755ef550"
+  version = "v1.1.0"
+
+[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
@@ -142,6 +153,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "154e4acc2d0293b208c77c6000871d5b4a6d36dd7549d5c9427a836ff73f3f55"
+  inputs-digest = "4a254976e1fec0d9cb2d1f5a3dd90465221a64252fdd5e7a842a48964726464a"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -1,7 +1,16 @@
 package main
 
-import ws "memefy/client/websocket"
+import (
+	"log"
+	ws "memefy/client/websocket"
+
+	"github.com/denisbrodbeck/machineid"
+)
 
 func main() {
-	ws.ListenAndWrite("localhost:8080", "/client/123")
+	mid, err := machineid.ID()
+	if err != nil {
+		log.Fatal(err)
+	}
+	ws.ListenAndWrite("localhost:8080", "/client/"+mid)
 }
