@@ -9,7 +9,7 @@ RUN mkdir /app && cp app /app/app
 
 # Actual Image will be here
 FROM ubuntu:latest
-RUN apt-get update && apt-get install -y libvlc-dev ca-certificates libxext-dev libxrender-dev libxtst-dev
+RUN apt-get update && apt-get install -y vlc libvlc-bin libvlc-dev ca-certificates libxext-dev libxrender-dev libxtst-dev
 WORKDIR /root/
 COPY --from=0 /app/app .
-CMD ["./app"]  
+CMD ["./app"]
