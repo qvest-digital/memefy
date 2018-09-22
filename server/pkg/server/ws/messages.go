@@ -1,6 +1,6 @@
 package ws
 
-type ClientRegistration struct {
+type ClientSyncRequest struct {
 	CurrentMemes []string `json:"currentMemes"`
 }
 
