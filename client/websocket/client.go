@@ -30,13 +30,14 @@ func ListenAndWrite(addr, path string) {
 		}
 	}()
 
-	currentMemes, err := persistence.ListMemes()
-	if err != nil {
-		log.Fatalf("Could not list current memes: %s", err.Error())
-	}
+
 
 	go func() {
 		for {
+			currentMemes, err := persistence.ListMemes()
+			if err != nil {
+				log.Fatalf("Could not list current memes: %s", err.Error())
+			}
 			c.WriteJSON(&ClientSyncRequest{CurrentMemes: currentMemes})
 			<-time.After(1 * time.Second)
 		}
