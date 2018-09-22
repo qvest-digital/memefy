@@ -13,6 +13,8 @@ services:
         image: domano/memefy_frontend:latest
         ports:
             - "80:3000"
-            
+        environment:
+            - "MEME_SERVER_URL=http://gomano.de:8080"
+
 volumes:
     meme_volume:
