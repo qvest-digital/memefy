@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
     web:
-        image: domano/memefy_client:latest
+        image: domano/memefy_server:latest
         ports:
             - "80:80"
             - "443:443"
