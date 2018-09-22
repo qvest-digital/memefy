@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+    memefy_server:
+        image: domano/memefy_server:latest
+        ports:
+            - "8080:8080"
+            - "8443:8443"
+        volumes:
+            - meme_volume:/app/files
+
+    memefy_frontend:
+        image: domano/memefy_frontend:latest
+        ports:
+            - "80:3000"
+            
+volumes:
+    meme_volume:
