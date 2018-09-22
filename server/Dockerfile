@@ -14,3 +14,4 @@ WORKDIR /root/
 COPY --from=0 /app/app .
 COPY --from=0 /app/config.yml .
 CMD ["./app"]
+EXPOSE 8080
