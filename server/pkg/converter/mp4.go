@@ -37,19 +37,22 @@ func getImgCmd(basePath, image, sound string) *exec.Cmd {
 }
 
 func getGifCmd(basePath, image, sound string) *exec.Cmd {
-	// ffmpeg -i bla.mp3 -i tenor.gif -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -strict -2 -c:v libx264 -threads 4 -c:a aac -b:a 192k -pix_fmt yuv420p out.mp4
+	// ffmpeg -i bla.mp3 -ignore_loop 0 -i 2.gif -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -shortest -strict -2 -c:v libx264 -threads 4 -c:a aac -b:a 192k -pix_fmt yuv420p -shortest out.mp4
+
 	return exec.Command(
 		"ffmpeg",
 		"-i", basePath+sound,
+		"-ignore_loop", "0",
 		"-i", basePath+image,
 		"-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2",
+		"-shortest",
 		"-strict", " -2",
 		"-c:v", "libx264",
 		"-threads", "4",
 		"-c:a", "aac",
 		"-b:a", "192k",
 		"-pix_fmt", "yuv420p",
-		"-y",
+		"-y", "-shortest",
 		basePath+"out.mp4")
 }
 
