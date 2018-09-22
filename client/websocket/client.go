@@ -104,7 +104,10 @@ func Listen(c *websocket.Conn) error {
 				return err
 			}
 			log.Println("got ", trigger)
-			play.PlayMeme(trigger.Meme)
+			err = play.PlayMeme(trigger.Meme)
+			if err != nil {
+				log.Printf("Error: %s", err.Error())
+			}
 		}
 	}
 }
