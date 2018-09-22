@@ -34,7 +34,14 @@ func ListenAndWrite(addr, path string) {
 	if err != nil {
 		log.Fatalf("Could not list current memes: %s", err.Error())
 	}
-	c.WriteJSON(&ClientRegistration{CurrentMemes: currentMemes})
+
+	go func() {
+		for {
+			c.WriteJSON(&ClientSyncRequest{CurrentMemes: currentMemes})
+			<-time.After(1 * time.Second)
+		}
+
+	}()
 
 	for {
 		select {

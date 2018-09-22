@@ -32,7 +32,7 @@ func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister, storag
 		AddClient(id, c)
 
 		for {
-			clientMsg := &ClientRegistration{}
+			clientMsg := &ClientSyncRequest{}
 			err := c.ReadJSON(clientMsg)
 			if err != nil {
 				log.Printf("Client %s sent unparseable message: %s", id, err.Error())
