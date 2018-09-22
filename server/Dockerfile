@@ -1,5 +1,5 @@
 FROM alpine:latest
-RUN apk update && apk upgrade && apk add go musl-dev
+RUN apk update && apk upgrade && apk add go musl-dev ca-certificates git
 ENV GOPATH /go/
 WORKDIR /go/src/memefy/server
 COPY ./ /go/src/memefy/server
