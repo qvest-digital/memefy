@@ -201,6 +201,10 @@ func (h *AdminHandler) PostMemeHandler() http.HandlerFunc {
 
 		w.WriteHeader(http.StatusCreated)
 		w.Write(jsonContent)
+		os.MkdirAll(h.cfg.StoragePath+name+"/", 0755)
+		lockFilePath := h.cfg.StoragePath + name + "/.lock"
+		os.Create(lockFilePath)
+		defer os.Remove(lockFilePath)
 		converter.CreateMp4(h.cfg.StoragePath+name+"/", "pic", "sound")
 	}
 }

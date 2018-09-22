@@ -82,7 +82,9 @@ func NewFsMemeLister(basePath string) MemeLister {
 		list, _ := storageDir.Readdir(0)
 		for _, f := range list {
 			if f.IsDir() {
-				memeList = append(memeList, f.Name())
+				if _, err := os.Stat(basePath+f.Name()+"/.lock"); os.IsNotExist(err) {
+					memeList = append(memeList, f.Name())
+				}
 			}
 		}
 
