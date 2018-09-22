@@ -42,7 +42,7 @@ type Security struct {
 // and returns a singleton Config struct
 func Get() *Config {
 	once.Do(func() {
-		viper.AddConfigPath("/var/service")
+		viper.AddConfigPath(".")
 		viper.AddConfigPath("$HOME/.memefy")
 		viper.AddConfigPath("$GOPATH/src/memefy/server")
 
