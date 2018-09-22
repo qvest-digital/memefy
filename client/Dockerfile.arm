@@ -1,0 +1,13 @@
+FROM arm64v8/alpine:3.7
+RUN apk add --no-cache vlc-dev go
+WORKDIR $GOPATH/src/app
+COPY ./ .
+RUN go get ./... && go build -o app .
+RUN mkdir /app && cp app /app/
+
+# Actual Image will be here
+FROM arm64v8/alpine:latest  
+RUN apk --no-cache add ca-certificates vlc-dev go
+WORKDIR /root/
+COPY --from=0 /app/app .
+CMD ["./app"]  
