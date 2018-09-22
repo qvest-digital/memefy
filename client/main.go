@@ -3,14 +3,19 @@ package main
 import (
 	"log"
 	ws "memefy/client/websocket"
+	"os"
 
 	"github.com/denisbrodbeck/machineid"
 )
 
 func main() {
+	server := os.Getenv("MEMEFY_SERVER")
+	if server == "" {
+		server = "localhost:8080"
+	}
 	mid, err := machineid.ID()
 	if err != nil {
 		log.Fatal(err)
 	}
-	ws.ListenAndWrite("localhost:8080", "/client/"+mid)
+	ws.ListenAndWrite(server, "/client/"+mid)
 }
