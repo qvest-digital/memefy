@@ -10,6 +10,7 @@ import (
 const basePath = "files/"
 
 func ListMemes() (memes []string, err error) {
+	os.MkdirAll(basePath, 0755)
 	contents, err := ioutil.ReadDir(basePath)
 	if err != nil {
 		return nil, err
