@@ -43,7 +43,9 @@
                     pic: null,
                     sound: null,
                     name: '',
-                    meta: {}
+                    meta: {
+                        tags: ['cool']
+                    }
                 },
                 uploadStatus: null
             }

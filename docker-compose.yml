@@ -3,18 +3,41 @@ version: '3.3'
 services:
     memefy_server:
         image: domano/memefy_server:latest
+        build:
+            context: ./server
         ports:
-            - "8080:8080"
-            - "8443:8443"
+            - "8080"
         volumes:
             - meme_volume:/app/files
+        restart: always
 
     memefy_frontend:
         image: domano/memefy_frontend:latest
+        build:
+            context: ./frontend
         ports:
             - "80:3000"
         environment:
-            - "MEME_SERVER_URL=http://gomano.de:8080"
+            - "MEME_SERVER_URL=http://memefy_server:8080"
+        depends_on:
+            - memefy_server
+        restart: always
+
+    memefy_client:
+        image: domano/memefy_client:latest
+        build:
+            context: ./client
+        environment:
+            - "MEMEFY_SERVER=memefy_server:8080"
+            - "DISPLAY=unix${DISPLAY}" # pass the display
+        volumes:
+            - /tmp/.X11-unix:/tmp/.X11-unix # mount the X11 socket
+        devices:
+            - /dev/snd # sound
+            - /dev/dri  #video cards
+        depends_on:
+            - memefy_server
+        restart: always
 
 volumes:
     meme_volume:
