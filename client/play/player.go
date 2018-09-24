@@ -1,6 +1,10 @@
 package play
 
 import (
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	vlc "github.com/adrg/libvlc-go"
@@ -9,13 +13,22 @@ import (
 const basePath = "files/"
 const vidName = "out.mp4"
 
-func PlayMeme(name string) error {
+func init() {
 	// Initialize libvlc. Additional command line arguments can be passed in
 	// to libvlc by specifying them in the Init function.
 	if err := vlc.Init("--quiet"); err != nil {
-		return err
+		log.Fatal("Could not initialize VLC!")
 	}
-	defer vlc.Release()
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		<-c
+		log.Println("Releasing VLC")
+		vlc.Release()
+	}()
+}
+
+func PlayMeme(name string) error {
 
 	// Create a new player
 	player, err := vlc.NewPlayer()
