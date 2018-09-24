@@ -33,13 +33,16 @@ func ListMemes() (memes []string, err error) {
 func SaveMeme(name string, r io.Reader) {
 	if err := os.MkdirAll(basePath+name, 0755); err != nil {
 		log.Printf("Could not create dir: %s", err.Error())
+		os.RemoveAll(basePath + name)
 	}
 	file, err := os.Create(basePath + name + "/out.mp4")
 	if err != nil {
 		log.Printf("Could not create file: %s", err.Error())
+		os.RemoveAll(basePath + name)
 	}
 	_, err = io.Copy(file, r)
 	if err != nil {
 		log.Printf("Could not write file: %s", err.Error())
+		os.RemoveAll(basePath + name)
 	}
 }
