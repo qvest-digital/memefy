@@ -30,8 +30,6 @@ func ListenAndWrite(addr, path string) {
 		}
 	}()
 
-
-
 	go func() {
 		for {
 			currentMemes, err := persistence.ListMemes()
@@ -67,7 +65,6 @@ func newConn(addr, path string) *websocket.Conn {
 
 func Listen(c *websocket.Conn) error {
 	for {
-
 		msgType, msgReader, err := c.NextReader()
 		if err != nil {
 			log.Println("recv error: ", err)
@@ -95,6 +92,7 @@ func Listen(c *websocket.Conn) error {
 				log.Println("binary read error, read more then one length byte")
 				return fmt.Errorf("Instead of reading %d length byte %d were read", nameLen, n)
 			}
+			log.Println("Receiving meme: " + string(nameBytes))
 			persistence.SaveMeme(string(nameBytes), msgReader)
 		} else {
 			trigger := &Trigger{}
