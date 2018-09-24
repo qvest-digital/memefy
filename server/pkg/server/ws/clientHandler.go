@@ -5,12 +5,21 @@ import (
 	"memefy/server/pkg/persistence"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{CheckOrigin: allOrigins} // use default options
+
+const (
+	// Time allowed to read the next pong message from the client.
+	pongWait = 60 * time.Second
+
+	// Send pings to client with this period. Must be less than pongWait.
+	pingPeriod = (pongWait * 9) / 10
+)
 
 // MemeDiffer should check for missing memes on the client side
 type MemeDiffer func(oldMemes, currentMemes []string) []string
@@ -31,11 +40,15 @@ func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister, storag
 		defer RemoveClient(id)
 		AddClient(id, c)
 
+		c.SetReadDeadline(time.Now().Add(pongWait))
+		c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+		
 		for {
 			clientMsg := &ClientSyncRequest{}
 			err := c.ReadJSON(clientMsg)
 			if err != nil {
 				log.Printf("Client %s sent unparseable message: %s", id, err.Error())
+				break
 			}
 
 			memeDiff := memeDiffer(memeLister(), clientMsg.CurrentMemes)
@@ -82,7 +95,7 @@ func NewFsMemeLister(basePath string) MemeLister {
 		list, _ := storageDir.Readdir(0)
 		for _, f := range list {
 			if f.IsDir() {
-				if _, err := os.Stat(basePath+f.Name()+"/.lock"); os.IsNotExist(err) {
+				if _, err := os.Stat(basePath + f.Name() + "/.lock"); os.IsNotExist(err) {
 					memeList = append(memeList, f.Name())
 				}
 			}
