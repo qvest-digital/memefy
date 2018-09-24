@@ -1,6 +1,6 @@
 <template>
     <div @click="triggerMeme()" class="meme thumbnail" :class="{ 'cooldown': hasCooldown }">
-        <img :src="meme.pic" :alt="meme.name" style="width:100%">
+        <img :src="meme.pic" :alt="meme.name">
         <div class="caption">
             <span>{{meme.name}}</span>
             <span class="pull-right" v-if="hasCooldown">{{cooldownInSec}}</span>
@@ -64,7 +64,8 @@
     p.cooldown {
         text-align: right;
     }
+
     img {
-        width: 100%;
+        height: 100px;
     }
 </style>
