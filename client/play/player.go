@@ -64,7 +64,7 @@ func PlayMeme(name string) error {
 	// Depends on the version of libvlc. From my tests, libvlc 3.X does not
 	// need this delay.
 	// TODO: Implement proper callbacks for getting the state of the media.
-	time.Sleep(2 * time.Second)
+	 time.Sleep(1 * time.Second)
 
 	// If the media played is a live stream the length will be 0
 	length, err := player.MediaLength()

@@ -7,6 +7,7 @@ import (
 	"log"
 	"memefy/client/persistence"
 	"memefy/client/play"
+	"net/http"
 	"net/url"
 	"os"
 	"os/signal"
@@ -16,13 +17,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-const (
-	// Time allowed to read the next pong message from the client.
-	pongWait = 60 * time.Second
+// const (
+// 	// Time allowed to read the next pong message from the client.
+// 	pongWait = 60 * time.Second
 
-	// Send pings to client with this period. Must be less than pongWait.
-	pingPeriod = (pongWait * 9) / 10
-)
+// 	// Send pings to client with this period. Must be less than pongWait.
+// 	pingPeriod = (pongWait * 9) / 10
+// )
 
 var syncLock = &sync.RWMutex{}
 
@@ -35,19 +36,24 @@ func ListenAndWrite(addr, path string) {
 
 	done := make(chan struct{})
 
-	go func() {
-		pingTicker := time.NewTicker(pingPeriod)
-		defer close(done)
-		for {
-			<-pingTicker.C
-			if err := c.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				return
-			}
-		}
-	}()
+	// go func() {
+	// 	pingTicker := time.NewTicker(pingPeriod)
+	// 	defer close(done)
+	// 	for {
+	// 		<-pingTicker.C
+	// 		if err := c.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+	// 			log.Println("Ping failed: " + err.Error())
+	// 			return
+	// 		}
+	// 	}
+	// }()
+
+	// c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
+
 	go func() {
 		defer close(done)
 		if err := Listen(c); err != nil {
+			log.Println("Listen failed: " + err.Error())
 			return
 		}
 	}()
@@ -80,7 +86,11 @@ func ListenAndWrite(addr, path string) {
 func newConn(addr, path string) *websocket.Conn {
 	u := url.URL{Scheme: "ws", Host: addr, Path: path}
 	log.Printf("connecting to %s", u.String())
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+	dialer := &websocket.Dialer{
+		Proxy:            http.ProxyFromEnvironment,
+		HandshakeTimeout: 70 * time.Second,
+	}
+	c, _, err := dialer.Dial(u.String(), nil)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}

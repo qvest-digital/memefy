@@ -5,7 +5,6 @@ import (
 	"memefy/server/pkg/persistence"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -13,13 +12,13 @@ import (
 
 var upgrader = websocket.Upgrader{CheckOrigin: allOrigins} // use default options
 
-const (
-	// Time allowed to read the next pong message from the client.
-	pongWait = 60 * time.Second
+// const (
+// 	// Time allowed to read the next pong message from the client.
+// 	pongWait = 60 * time.Second
 
-	// Send pings to client with this period. Must be less than pongWait.
-	pingPeriod = (pongWait * 9) / 10
-)
+// 	// Send pings to client with this period. Must be less than pongWait.
+// 	pingPeriod = (pongWait * 9) / 10
+// )
 
 // MemeDiffer should check for missing memes on the client side
 type MemeDiffer func(oldMemes, currentMemes []string) []string
@@ -40,9 +39,12 @@ func WebSocketClientHandler(memeDiffer MemeDiffer, memeLister MemeLister, storag
 		defer RemoveClient(id)
 		AddClient(id, c)
 
-		c.SetReadDeadline(time.Now().Add(pongWait))
-		c.SetPongHandler(func(string) error { c.SetReadDeadline(time.Now().Add(pongWait)); return nil })
-		
+		// c.SetReadDeadline(time.Now().Add(pongWait))
+		// c.SetPingHandler(func(m string) error {
+		// 	go c.WriteControl(websocket.PongMessage, []byte(m), time.Now().Add(pingPeriod))
+		// 	return nil
+		// })
+
 		for {
 			clientMsg := &ClientSyncRequest{}
 			err := c.ReadJSON(clientMsg)

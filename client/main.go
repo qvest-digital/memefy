@@ -11,7 +11,7 @@ import (
 func main() {
 	server := os.Getenv("MEMEFY_SERVER")
 	if server == "" {
-		server = "localhost:8080"
+		server = "gomano.de:8080"
 	}
 	mid, err := machineid.ID()
 	if err != nil {
